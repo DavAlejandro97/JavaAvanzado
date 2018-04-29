@@ -114,6 +114,7 @@ public class Controlador {
             
             
         } catch (Exception e) {
+            e.printStackTrace();
         }
     }
 
