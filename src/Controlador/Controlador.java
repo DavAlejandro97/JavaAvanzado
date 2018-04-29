@@ -49,7 +49,7 @@ public class Controlador {
             String dir = "";
             String marca = "", modelo = "", placas = "";
             int monto_fac = 0;
-            
+            int facV;
             Modelo mo = new Modelo();
             mo.CrearTablas();
             
@@ -103,15 +103,12 @@ public class Controlador {
                     placas = element.getElementsByTagName("placas").item(0).getTextContent();
                     modelo = element.getElementsByTagName("modelo").item(0).getTextContent();
                     marca = element.getElementsByTagName("marca").item(0).getTextContent();
-                    
-                    st.executeUpdate("INSERT INTO VEHICULO(ID_VEHICULO, ID_FACTURA, PLACA, MODELO, MARCA) " + "VALUES (" + (i+1) + ", " + (i+1) + ", " + placas + ", " + modelo + ", " + marca);
+                    facV = Integer.parseInt(element.getElementsByTagName("id_factura").item(0).getTextContent());
+                 
+                    st.executeUpdate("INSERT INTO VEHICULO(ID_VEHICULO, ID_FACTURA, PLACA, MODELO, MARCA) " + "VALUES (" + (i+1) + ", " + facV + ", " + placas + ", " + modelo + ", " + marca);
                 }
-               
                 
-            }
-            
-            
-            
+            } 
             
         } catch (Exception e) {
             e.printStackTrace();
@@ -122,28 +119,5 @@ public class Controlador {
 
     }
 
-    public static void main(String[] args) {
-        try {
-            File archivo = new File("/home/nestorivanmo/Desktop/docs/Clientes.xml");
-            DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-            DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
-            Document document = documentBuilder.parse(archivo);
-
-            System.out.println("Elemento raíz: " + document.getDocumentElement().getNodeName());
-            NodeList listaClientes = document.getElementsByTagName("cliente");
-
-            for (int i = 0; i < listaClientes.getLength(); i++) {
-                Node nodo = listaClientes.item(i);
-                System.out.println("Elemento: " + nodo.getNodeName());
-
-                if (nodo.getNodeType() == Node.ELEMENT_NODE) { //ELEMENT_NODE para verificar si se trata de una etiqueta de XML
-                    Element element = (Element) nodo;
-                    System.out.println("Nombre: " + element.getElementsByTagName("nombre").item(0).getTextContent());
-                    System.out.println("Direccion: " + element.getElementsByTagName("direccion").item(0).getTextContent());
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
 }
+
