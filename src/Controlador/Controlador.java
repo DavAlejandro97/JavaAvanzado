@@ -47,6 +47,8 @@ public class Controlador {
         try {
             String nombre = ""; 
             String dir = "";
+            String marca = "", modelo = "", placas = "";
+            int monto_fac = 0;
             
             Modelo mo = new Modelo();
             mo.CrearTablas();
@@ -54,10 +56,9 @@ public class Controlador {
             con = DriverManager.getConnection(url, user, password);
             Statement st = (Statement) con.createStatement();
             
-            
             File clientes = new File("/home/nestorivanmo/Desktop/docs/Clientes.xml");
-            File facturas = new File("/home/nestorivanmo/Desktop/docs/Clientes.xml");
-            File vehiculos = new File("/home/nestorivanmo/Desktop/docs/Clientes.xml");
+            File facturas = new File("/home/nestorivanmo/Desktop/docs/Facturas.xml");
+            File vehiculos = new File("/home/nestorivanmo/Desktop/docs/Vehiculos.xml");
             DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
             DocumentBuilder documentBuilder = dbf.newDocumentBuilder();
             Document document = documentBuilder.parse(clientes);
@@ -83,15 +84,13 @@ public class Controlador {
                     dir = element.getElementsByTagName("direccion").item(0).getTextContent();
                     
                     st.executeUpdate("INSERT INTO CLIENTE(ID_CLIENTE, NOMBRE, DIRECCION) " + "VALUES (" + (i+1) + ", " + nombre + ", " + dir);
-                }
-                
-                
-                
-                
+                } 
                 System.out.println("Elemento: "+ nodo2.getNodeName());
                 if(nodo2.getNodeType() == Node.ELEMENT_NODE){ //ELEMENT_NODE para verificar si se trata de una etiqueta de XML
                     Element element = (Element) nodo2;
                     System.out.println(element.getElementsByTagName("costo_total").item(0).getTextContent());
+                    monto_fac = Integer.parseInt(element.getElementsByTagName("costo_total").item(0).getTextContent());
+                    st.executeUpdate("INSERT INTO FACTURA(ID_FACTURA, MONTO_FAC) " + "VALUES (" + (i+1) + ", " + monto_fac);
                 }
                 System.out.println("Elemento: "+ nodo3.getNodeName());
                 if(nodo3.getNodeType() == Node.ELEMENT_NODE){ //ELEMENT_NODE para verificar si se trata de una etiqueta de XML
@@ -100,6 +99,12 @@ public class Controlador {
                     System.out.println(element.getElementsByTagName("marca").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("modelo").item(0).getTextContent());
                     System.out.println(element.getElementsByTagName("id_factura").item(0).getTextContent());
+                    
+                    placas = element.getElementsByTagName("placas").item(0).getTextContent();
+                    modelo = element.getElementsByTagName("modelo").item(0).getTextContent();
+                    marca = element.getElementsByTagName("marca").item(0).getTextContent();
+                    
+                    st.executeUpdate("INSERT INTO VEHICULO(ID_VEHICULO, ID_FACTURA, PLACA, MODELO, MARCA) " + "VALUES (" + (i+1) + ", " + (i+1) + ", " + placas + ", " + modelo + ", " + marca);
                 }
                
                 
