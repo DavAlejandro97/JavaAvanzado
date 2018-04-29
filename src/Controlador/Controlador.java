@@ -20,6 +20,7 @@ import org.w3c.dom.NodeList;
 import Modelo.Modelo;
 
 import java.io.File;
+import java.sql.SQLException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
@@ -49,9 +50,10 @@ public class Controlador {
             String dir = "";
             String marca = "", modelo = "", placas = "";
             int monto_fac = 0;
-            int facV;
+            int facV, costoPoliza, valorPrima;
             Modelo mo = new Modelo();
             mo.CrearTablas();
+            String query = "";
             
             con = DriverManager.getConnection(url, user, password);
             Statement st = (Statement) con.createStatement();
@@ -83,14 +85,14 @@ public class Controlador {
                     nombre = element.getElementsByTagName("nombre").item(0).getTextContent();
                     dir = element.getElementsByTagName("direccion").item(0).getTextContent();
                     
-                    st.executeUpdate("INSERT INTO CLIENTE(ID_CLIENTE, NOMBRE, DIRECCION) " + "VALUES (" + (i+1) + ", " + nombre + ", " + dir);
+                    st.executeUpdate("INSERT INTO CLIENTE(ID_CLIENTE, NOMBRE, DIRECCION) " + "VALUES (" + (i+1) + ", " + nombre + ", " + dir + ")");
                 } 
                 System.out.println("Elemento: "+ nodo2.getNodeName());
                 if(nodo2.getNodeType() == Node.ELEMENT_NODE){ //ELEMENT_NODE para verificar si se trata de una etiqueta de XML
                     Element element = (Element) nodo2;
                     System.out.println(element.getElementsByTagName("costo_total").item(0).getTextContent());
                     monto_fac = Integer.parseInt(element.getElementsByTagName("costo_total").item(0).getTextContent());
-                    st.executeUpdate("INSERT INTO FACTURA(ID_FACTURA, MONTO_FAC) " + "VALUES (" + (i+1) + ", " + monto_fac);
+                    st.executeUpdate("INSERT INTO FACTURA(ID_FACTURA, MONTO_FAC) " + "VALUES (" + (i+1) + ", " + monto_fac + ")");
                 }
                 System.out.println("Elemento: "+ nodo3.getNodeName());
                 if(nodo3.getNodeType() == Node.ELEMENT_NODE){ //ELEMENT_NODE para verificar si se trata de una etiqueta de XML
@@ -105,14 +107,52 @@ public class Controlador {
                     marca = element.getElementsByTagName("marca").item(0).getTextContent();
                     facV = Integer.parseInt(element.getElementsByTagName("id_factura").item(0).getTextContent());
                  
-                    st.executeUpdate("INSERT INTO VEHICULO(ID_VEHICULO, ID_FACTURA, PLACA, MODELO, MARCA) " + "VALUES (" + (i+1) + ", " + facV + ", " + placas + ", " + modelo + ", " + marca);
+                    st.executeUpdate("INSERT INTO VEHICULO(ID_VEHICULO, ID_FACTURA, PLACA, MODELO, MARCA) " + "VALUES (" + (i+1) + ", " + facV + ", " + placas + ", " + modelo + ", " + marca + ")");
+              
+                      query = "SELECT f.MONTO_FAC FROM FACTURA AS f INNER JOIN VEHICULO AS v ON f.ID_FACTURA = v.ID_FACTURA";
+                
                 }
+
+               costoPoliza = obtenerCostoPoliza(query);
+               valorPrima = obtenerValorPrima(query);
+               
+               
+                
+                st.executeUpdate("INSERT INTO POLIZA(ID_POLIZA, ID_VEHICULO, ID_CLIENTE, COSTO_POLIZA, VALOR_PRIMA, FECHA_VENCIMIENTO, FECHA_APERTURA) " + "VALUES ("+ (i+1) +", "+(i+1)+", "+(i+1)+", "+costoPoliza+", "+valorPrima+", SELECT ADDDATE(SELECT CURDATE(), INTERVAL 31 DAY), SELECT CURDATE())");
                 
             } 
             
         } catch (Exception e) {
             e.printStackTrace();
         }
+    }
+    
+    public int obtenerCostoPoliza(String query){
+        int cp = 0; //costo poliza, valor prima
+        try{
+          con = DriverManager.getConnection(url, user, password);
+          Statement st = (Statement) con.createStatement();  
+          rs = st.executeQuery(query);
+          while(rs.next()){
+              cp = (int) (rs.getInt("f.MONTO_FAC") *(6.67 * 12)/100);
+          }
+        }catch(SQLException e){}
+        
+        return cp;
+    }
+    
+    public int obtenerValorPrima(String query){
+        int vp = 0; //costo poliza, valor prima
+        try{
+          con = DriverManager.getConnection(url, user, password);
+          Statement st = (Statement) con.createStatement();  
+          rs = st.executeQuery(query);
+          while(rs.next()){
+              vp =  (int) (0.85 * rs.getInt("f.MONTO_FAC"));
+          }
+        }catch(SQLException e){}
+        
+        return vp;
     }
 
     public static void BuscarCliente(String nombre, String direccion) {

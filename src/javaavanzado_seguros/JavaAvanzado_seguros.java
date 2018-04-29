@@ -4,13 +4,8 @@
  * and open the template in the editor.
  */
 package javaavanzado_seguros;
-import javax.xml.parsers.DocumentBuilderFactory;
-import java.io.File;
-import javax.xml.parsers.DocumentBuilder;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import Modelo.Modelo;
+import Controlador.Controlador;
 
 /**
  *
@@ -23,7 +18,8 @@ public class JavaAvanzado_seguros {
      */
     public static void main(String[] args) {
         // TODO code application logic here
-        
+        Controlador cont = new Controlador();
+        cont.llenarDb();
     }
     
 }
